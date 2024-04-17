@@ -36,17 +36,17 @@ export class TerminalClock {
 
     this.killed = false;
     this.seconds = durationS;
+    this.tick();
     this.interval = setInterval(() => this.tick(), 1000);
   }
 
   tick() {
+    if (this.seconds === -1) {
+      this.kill();
+    }
     try {
       log(digitalClock + '\r', to2Dig(Math.trunc(this.seconds / 60)), to2Dig(this.seconds-- % 60));
-      process.stdout.moveCursor(0, -3, () => {
-        if (this.seconds === 0) {
-          this.kill();
-        }
-      });
+      process.stdout.moveCursor(0, -3);
     } catch (e) {
       restoreTerminal();
       throw e;
@@ -56,6 +56,10 @@ export class TerminalClock {
   kill() {
     clearInterval(this.interval);
     TerminalClock.INSTANCE_COUNT--;
+
+    process.stdout.clearScreenDown();
+
+    restoreTerminal();
 
     process.stdin.off('data', this.interruptHandler);
     process.exit();
