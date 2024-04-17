@@ -1,5 +1,7 @@
-import { execSync } from 'child_process';
 import { setInterval, clearInterval } from 'timers';
+
+import { log } from './utils.js'
+import { setupTerminal, restoreTerminal } from './terminal.js';
 
 const digitalClock = [
   ' _________',
@@ -15,14 +17,14 @@ export class TerminalClock {
   constructor(durationS) {
     if (TerminalClock.INSTANCE_COUNT !== 0) throw new Error("Can only have one instance active at a time");
     TerminalClock.INSTANCE_COUNT++;
-    this.setupTerminal();
+    setupTerminal();
 
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
         process.stdout.moveCursor(0, -3, () => {
           process.stdout.clearScreenDown(() => {
-            this.restoreTerminal();
-            console.log("Clock stopped");
+            restoreTerminal();
+            log("Clock stopped");
             this.kill();
           });
         });
@@ -38,12 +40,17 @@ export class TerminalClock {
   }
 
   tick() {
-    console.log(digitalClock + '\r', to2Dig(Math.trunc(this.seconds / 60)), to2Dig(this.seconds-- % 60));
-    process.stdout.moveCursor(0, -3, () => {
-      if (this.seconds === 0) {
-        this.kill();
-      }
-    });
+    try {
+      log(digitalClock + '\r', to2Dig(Math.trunc(this.seconds / 60)), to2Dig(this.seconds-- % 60));
+      process.stdout.moveCursor(0, -3, () => {
+        if (this.seconds === 0) {
+          this.kill();
+        }
+      });
+    } catch (e) {
+      restoreTerminal();
+      throw e;
+    }
   }
 
   kill() {
@@ -52,17 +59,5 @@ export class TerminalClock {
 
     process.stdin.off('data', this.interruptHandler);
     process.exit();
-  }
-
-  setupTerminal() {
-    execSync('stty raw -echo', {
-      stdio: 'inherit' // this is important!
-    });
-  }
-
-  restoreTerminal() {
-    execSync('stty -raw echo', {
-      stdio: 'inherit' // this is important!
-    });
   }
 }
