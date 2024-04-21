@@ -31,11 +31,11 @@ const to2Dig = (x) => {
 };
 
 export class TerminalTimer {
-  static INSTANCE_COUNT = 0;
+  static INSTANCES = new Set();
 
   constructor(durationS) {
-    if (TerminalTimer.INSTANCE_COUNT !== 0) throw new Error('Can only have one instance active at a time');
-    TerminalTimer.INSTANCE_COUNT++;
+    if (TerminalTimer.INSTANCES.size !== 0) throw new Error('Can only have one instance active at a time');
+    TerminalTimer.INSTANCES.add(this);
 
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
@@ -89,14 +89,13 @@ export class TerminalTimer {
     * Kill the timer and restore previous terminal settings
     * */
   kill() {
+    TerminalTimer.INSTANCES.delete(this);
     this.killed = true;
     if (stdout.clearScreenDown)
       stdout.clearScreenDown();
     restoreTerminal();
 
     this.abortController.abort();
-
-    TerminalTimer.INSTANCE_COUNT--;
 
     stdin.off('data', this.interruptHandler);
   }
