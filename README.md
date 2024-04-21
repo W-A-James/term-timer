@@ -4,8 +4,14 @@ A minimal terminal-based timer that I wrote so I don't oversteep my tea.
 
 Makes use of your terminal bell to alert you when your timer has expired.
 
+## Installation
 
-Usage
+```bash
+npm install -g term-timer
+```
+
+## Usage
+
 ```bash
 $ term-timer 5m
     ╭──────────╮
