@@ -10,8 +10,18 @@
     "fix:eslint": "eslint --fix",
     "check:eslint": "eslint"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cli"
+  ],
+  "author": {
+    "name": "Warren James",
+    "email": "warren.james.dev@gmail.com",
+    "url": "https://github.com/W-A-James"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/W-A-James/term-timer"
+  },
   "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^9.1.1",
