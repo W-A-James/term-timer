@@ -7,7 +7,7 @@ describe('class TerminalTimer()', function() {
     context('when called multiple times', function() {
       let timer;
 
-      after(() => {
+      afterEach(() => {
         if (timer) timer.kill();
       });
 
@@ -21,7 +21,7 @@ describe('class TerminalTimer()', function() {
   context('run()', function() {
     let timer;
 
-    after(() => {
+    afterEach(() => {
       if (timer) timer.kill();
     });
 
