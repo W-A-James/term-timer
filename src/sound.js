@@ -1,4 +1,4 @@
-import { setInterval } from 'timers/promises';
+import { setInterval } from 'node:timers/promises';
 
 /**
   * Repeat a function n times with a delay of delayMS between invocations

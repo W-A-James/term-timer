@@ -1,5 +1,5 @@
-import { setInterval } from 'timers/promises';
-import { stdin, stdout } from 'process';
+import { setInterval } from 'node:timers/promises';
+import { stdin, stdout } from 'node:process';
 
 import { log } from './utils.js';
 import { setupTerminal, restoreTerminal } from './terminal.js';
