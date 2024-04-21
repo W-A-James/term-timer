@@ -14,8 +14,10 @@ export default [
   },
   {
     files: ['test/**/*'],
-    rules: {
-      'no-undef': 'off'
+    languageOptions: {
+      globals: {
+        ...globals.mocha
+      }
     }
   },
   {
