@@ -65,26 +65,30 @@ export class TerminalTimer extends EventEmitter {
   async run() {
     if (this.captureTTY)
       setupTerminal();
-    for await (const _ of setInterval(1000, undefined, { signal: this.abortController.signal })) {
-      if (this.killed) return;
-      if (this.seconds === -1) { // Timer successfully expired
-        break;
-      }
-
-      try {
-        const hours = Math.trunc(this.seconds / 3600);
-        const minutes = Math.trunc((this.seconds % 3600) / 60);
-        const seconds = (this.seconds) % 60;
-        if (this.captureTTY) {
-          log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(minutes), to2Dig(seconds));
-          stdout.moveCursor(0, -3);
+    try {
+      for await (const _ of setInterval(1000, undefined, { signal: this.abortController.signal })) {
+        if (this.killed) return;
+        if (this.seconds === -1) { // Timer successfully expired
+          break;
         }
 
-        this.seconds--;
-      } catch {
-        this.kill();
-        return;
+        try {
+          const hours = Math.trunc(this.seconds / 3600);
+          const minutes = Math.trunc((this.seconds % 3600) / 60);
+          const seconds = (this.seconds) % 60;
+          if (this.captureTTY) {
+            log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(minutes), to2Dig(seconds));
+            stdout.moveCursor(0, -3);
+          }
+
+          this.seconds--;
+        } catch {
+          this.kill();
+          return;
+        }
       }
+    } catch {
+      // Do nothing with abort error
     }
 
     await repeat(5, 100, bell, { signal: this.abortController.signal });
