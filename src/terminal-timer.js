@@ -40,9 +40,13 @@ export class TerminalTimer {
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
         stdout.moveCursor(0, -3, () => {
-          stdout.clearScreenDown(() => {
+          if (stdout.clearScreenDown) {
+            stdout.clearScreenDown(() => {
+              this.kill();
+            });
+          } else {
             this.kill();
-          });
+          }
         });
 
       }
@@ -86,7 +90,8 @@ export class TerminalTimer {
     * */
   kill() {
     this.killed = true;
-    stdout.clearScreenDown();
+    if (stdout.clearScreenDown)
+      stdout.clearScreenDown();
     restoreTerminal();
 
     this.abortController.abort();
