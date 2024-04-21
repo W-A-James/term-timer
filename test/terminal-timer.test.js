@@ -12,8 +12,8 @@ describe('class TerminalTimer()', function() {
       });
 
       it('throws an error', function() {
-        timer = new TerminalTimer(100);
-        expect(() => new TerminalTimer(100)).to.throw(Error);
+        timer = new TerminalTimer(100, false);
+        expect(() => new TerminalTimer(100, false)).to.throw(Error);
       });
     });
   });
@@ -26,7 +26,7 @@ describe('class TerminalTimer()', function() {
     });
 
     it('creates a Timeout instance', async function() {
-      timer = new TerminalTimer(100);
+      timer = new TerminalTimer(100, false);
       const preRunActiveResources = process.getActiveResourcesInfo();
       expect(preRunActiveResources).to.not.include('Timeout');
       timer.run();
@@ -38,7 +38,7 @@ describe('class TerminalTimer()', function() {
 
   context('kill()', function() {
     it('kills all timers associated with TerminalTimer instance', async function() {
-      const timer = new TerminalTimer(100);
+      const timer = new TerminalTimer(100, false);
 
       const preRunActiveResources = process.getActiveResourcesInfo();
       expect(preRunActiveResources).to.not.include('Timeout');
