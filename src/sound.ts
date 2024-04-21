@@ -1,9 +1,10 @@
 import { setInterval } from 'node:timers/promises';
+import { stdout } from 'node:process';
 
 /**
   * Repeat a function n times with a delay of delayMS between invocations
   **/
-export async function repeat(n, delayMS, func, opts) {
+export async function repeat(n: number, delayMS: number, func: () => void, opts: { signal: AbortSignal }) {
   try {
     for await (const _ of setInterval(delayMS, undefined, opts)) {
       func();
@@ -17,6 +18,6 @@ export async function repeat(n, delayMS, func, opts) {
 /**
   * Ring terminal bell
   */
-export function bell() {
-  process.stdout.write('\x07');
+export function bell(): void {
+  stdout.write('\x07');
 }

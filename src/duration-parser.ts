@@ -13,10 +13,10 @@ const SEC = /^([1-9]+\d*)s$/i;
   * 1m
   * 1s
   * 10
-  * @param string: string
+  * @param durationString: string
   * */
-export function parseDuration(string) {
-  const parts = string.split(' ');
+export function parseDuration(durationString: string): number {
+  const parts = durationString.split(' ');
   if (parts.length === 0 || parts.length > 3) throw new Error('Invalid duration specifier');
 
 

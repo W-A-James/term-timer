@@ -21,6 +21,7 @@ export default [
     }
   },
   {
+    files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

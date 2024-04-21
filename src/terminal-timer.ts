@@ -13,7 +13,7 @@ const DIGITAL_CLOCK = [
   '     ╰──────────╯'
 ].join('\r\n');
 
-const to7Seg = {
+const to7Seg: Record<string, string> = {
   '0': '\u{1fbf0}',
   '1': '\u{1fbf1}',
   '2': '\u{1fbf2}',
@@ -26,15 +26,20 @@ const to7Seg = {
   '9': '\u{1fbf9}',
 };
 
-const to2Dig = (x) => {
+const to2Dig = (x: number) => {
   const stringified = x < 10 ? `0${x}` : x.toString();
-  return stringified.split('').map(x => to7Seg[x]).join('');
+  return stringified.split('').map((x: string) => to7Seg[x]).join('');
 };
 
 export class TerminalTimer extends EventEmitter {
   static INSTANCES = new Set();
+  private interruptHandler: (data: string) => void;
+  private killed: boolean;
+  private seconds: number;
+  private abortController: AbortController;
+  private captureTTY: boolean;
 
-  constructor(durationS, captureTTY = true) {
+  constructor(durationS: number, captureTTY = true) {
     super();
     if (TerminalTimer.INSTANCES.size !== 0) throw new Error('Can only have one instance active at a time');
     TerminalTimer.INSTANCES.add(this);
@@ -62,7 +67,7 @@ export class TerminalTimer extends EventEmitter {
     this.captureTTY = captureTTY;
   }
 
-  async run() {
+  async run(): Promise<void> {
     if (this.captureTTY)
       setupTerminal();
     try {
@@ -98,7 +103,7 @@ export class TerminalTimer extends EventEmitter {
   /**
     * Kill the timer and restore previous terminal settings
     * */
-  kill() {
+  kill(): void {
     TerminalTimer.INSTANCES.delete(this);
     this.killed = true;
 
