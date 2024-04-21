@@ -1,7 +1,7 @@
 import { setInterval } from 'timers/promises';
 import { stdin, stdout } from 'process';
 
-import { log } from './utils.js'
+import { log } from './utils.js';
 import { setupTerminal, restoreTerminal } from './terminal.js';
 import { repeat, bell } from './sound.js';
 
@@ -34,7 +34,7 @@ export class TerminalTimer {
   static INSTANCE_COUNT = 0;
 
   constructor(durationS) {
-    if (TerminalTimer.INSTANCE_COUNT !== 0) throw new Error("Can only have one instance active at a time");
+    if (TerminalTimer.INSTANCE_COUNT !== 0) throw new Error('Can only have one instance active at a time');
     TerminalTimer.INSTANCE_COUNT++;
 
     this.interruptHandler = data => {
@@ -46,7 +46,7 @@ export class TerminalTimer {
         });
 
       }
-    }
+    };
     // Set up interrupt handler
     stdin.on('data', this.interruptHandler);
 
@@ -71,7 +71,7 @@ export class TerminalTimer {
 
         this.seconds--;
         process.stdout.moveCursor(0, -3);
-      } catch (e) {
+      } catch {
         this.kill();
         return;
       }

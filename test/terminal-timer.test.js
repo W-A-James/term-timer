@@ -9,14 +9,14 @@ describe('class TerminalTimer()', function() {
 
       after(() => {
         if (timer) timer.kill();
-      })
+      });
 
       it('throws an error', function() {
         timer = new TerminalTimer(100);
         expect(() => new TerminalTimer(100)).to.throw(Error);
-      })
-    })
-  })
+      });
+    });
+  });
 
   context('run()', function() {
     let timer;

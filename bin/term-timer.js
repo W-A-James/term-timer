@@ -12,13 +12,13 @@ Usage:
   Must specify at least one of [hours], [minutes], [seconds]
 
   If only one duration specifier is provided with no suffix, defaults to interpreting as seconds
-`
+`;
 
 if (duration) {
   let durationNum;
   try {
     durationNum = parseDuration(duration);
-  } catch (err) {
+  } catch {
     error('Must correctly specify duration');
     log(usage);
     process.exit(1);
@@ -28,12 +28,12 @@ if (duration) {
     await new TerminalTimer(durationNum).run();
     process.exit(0);
   } else {
-    error("Duration must be a finite integer");
+    error('Duration must be a finite integer');
     log(usage);
     process.exit(1);
   }
 } else {
-  error("Must specify duration");
+  error('Must specify duration');
   log(usage);
   process.exit(1);
 }

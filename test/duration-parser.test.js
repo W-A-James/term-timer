@@ -46,7 +46,7 @@ describe('parseDuration()', () => {
   context('when passed an unrecognized time specifier', function() {
     it('throws an error', function() {
       expect(() => parseDuration('10a')).to.throw(Error).matches(/Unrecognized time specifier/);
-    })
+    });
   });
 
   context('when passed duplicate hour specifiers', function() {
@@ -66,4 +66,4 @@ describe('parseDuration()', () => {
       expect(() => parseDuration('1s 1s')).to.throw(Error).matches(/duplicate seconds specifier/);
     });
   });
-})
+});

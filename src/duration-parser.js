@@ -54,7 +54,7 @@ export function parseDuration(string) {
       continue;
     }
 
-    throw new Error('Unrecognized time specifier')
+    throw new Error('Unrecognized time specifier');
   }
 
   return seconds;
