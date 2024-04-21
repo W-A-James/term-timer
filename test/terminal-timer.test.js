@@ -1,6 +1,4 @@
 import { TerminalTimer } from '../src/terminal-timer.js';
-import { restoreTerminal } from '../src/terminal.js';
-import { setTimeout } from 'timers/promises';
 import { expect } from 'chai';
 
 
