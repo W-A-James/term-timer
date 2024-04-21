@@ -1,11 +1,10 @@
-import { setInterval as setintervalP } from 'timers/promises';
+import { setInterval } from 'timers/promises';
+import { stdin, stdout } from 'process';
 
 import { log } from './utils.js'
 import { setupTerminal, restoreTerminal } from './terminal.js';
-
 import { repeat, bell } from './sound.js';
 
-import { stdin, stdout } from 'process';
 
 const DIGITAL_CLOCK = [
   '     ╭──────────╮',
@@ -37,7 +36,6 @@ export class TerminalTimer {
   constructor(durationS) {
     if (TerminalTimer.INSTANCE_COUNT !== 0) throw new Error("Can only have one instance active at a time");
     TerminalTimer.INSTANCE_COUNT++;
-    setupTerminal();
 
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
@@ -54,10 +52,12 @@ export class TerminalTimer {
 
     this.killed = false;
     this.seconds = durationS;
+    this.abortController = new AbortController();
   }
 
   async run() {
-    for await (const _ of setintervalP(1000)) {
+    setupTerminal();
+    for await (const _ of setInterval(1000, undefined, { signal: this.abortController.signal })) {
       if (this.killed) return;
       if (this.seconds === -1) { // Timer successfully expired
         break;
@@ -65,8 +65,9 @@ export class TerminalTimer {
 
       try {
         const hours = Math.trunc(this.seconds / 3600);
-        const remainingSeconds = this.seconds % 3600;
-        log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(Math.trunc(remainingSeconds / 60)), to2Dig(remainingSeconds % 60));
+        const minutes = Math.trunc((this.seconds % 3600) / 60);
+        const seconds = (this.seconds) % 60;
+        log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(minutes), to2Dig(seconds));
 
         this.seconds--;
         process.stdout.moveCursor(0, -3);
@@ -76,14 +77,19 @@ export class TerminalTimer {
       }
     }
 
-    await repeat(5, 200, bell);
+    await repeat(5, 100, bell, { signal: this.abortController.signal });
     this.kill();
   }
 
+  /**
+    * Kill the timer and restore previous terminal settings
+    * */
   kill() {
     this.killed = true;
     stdout.clearScreenDown();
     restoreTerminal();
+
+    this.abortController.abort();
 
     TerminalTimer.INSTANCE_COUNT--;
 
