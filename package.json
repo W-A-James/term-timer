@@ -5,7 +5,7 @@
   "bin": "./bin/src/index.js",
   "type": "module",
   "scripts": {
-    "test": "mocha -r ts-node/register ./test/",
+    "test": "mocha",
     "build": "tsc",
     "fix:eslint": "eslint --fix",
     "check:eslint": "eslint"
