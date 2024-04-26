@@ -12,8 +12,8 @@ describe('class TerminalTimer()', function() {
       });
 
       it('throws an error', function() {
-        timer = new TerminalTimer(100, false);
-        expect(() => new TerminalTimer(100, false)).to.throw(Error);
+        timer = new TerminalTimer({ duration: 100, captureTTY: false });
+        expect(() => new TerminalTimer({ duration: 100, captureTTY: false })).to.throw(Error);
       });
     });
   });
@@ -26,7 +26,7 @@ describe('class TerminalTimer()', function() {
     });
 
     it('creates a Timeout instance', async function() {
-      timer = new TerminalTimer(100, false);
+      timer = new TerminalTimer({ duration: 100, captureTTY: false });
       // @ts-expect-error accessing internals
       const preRunActiveResources = process.getActiveResourcesInfo();
       expect(preRunActiveResources).to.not.include('Timeout');
@@ -40,7 +40,7 @@ describe('class TerminalTimer()', function() {
 
   context('kill()', function() {
     it('kills all timers associated with TerminalTimer instance', async function() {
-      const timer = new TerminalTimer(100, false);
+      const timer = new TerminalTimer({ duration: 100, captureTTY: false });
 
       // @ts-expect-error accessing internals
       const preRunActiveResources = process.getActiveResourcesInfo();

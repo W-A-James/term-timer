@@ -34,6 +34,12 @@ const to2Dig = (x: number, no7Seg?: boolean) => {
   return stringified.split('').map((x: string) => to7Seg[x]).join('');
 };
 
+export interface TimerOptions {
+  duration: number;
+  captureTTY?: boolean;
+  no7Seg?: boolean;
+}
+
 export class TerminalTimer extends EventEmitter {
   static INSTANCES = new Set();
   private interruptHandler: (data: string) => void;
@@ -43,12 +49,12 @@ export class TerminalTimer extends EventEmitter {
   private captureTTY: boolean;
   private no7Seg: boolean;
 
-  constructor(durationS: number, no7Seg = false, captureTTY = true) {
+  constructor(options: TimerOptions) {
     super();
     if (TerminalTimer.INSTANCES.size !== 0) throw new Error('Can only have one instance active at a time');
     TerminalTimer.INSTANCES.add(this);
 
-    this.no7Seg = no7Seg;
+    this.no7Seg = options.no7Seg ?? false;
 
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
@@ -64,13 +70,13 @@ export class TerminalTimer extends EventEmitter {
       }
     };
     // Set up interrupt handler
-    if (captureTTY)
+    if (options.captureTTY)
       stdin.on('data', this.interruptHandler);
 
     this.killed = false;
-    this.seconds = durationS;
+    this.seconds = options.duration;
     this.abortController = new AbortController();
-    this.captureTTY = captureTTY;
+    this.captureTTY = options.captureTTY ?? true;
   }
 
   async run(): Promise<void> {

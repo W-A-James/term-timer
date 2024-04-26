@@ -52,7 +52,8 @@ async function main() {
   }
 
   if (duration != null && Number.isFinite(duration)) {
-    await new TerminalTimer(duration, Boolean(program.opts().no7seg)).run();
+    const opts = program.opts();
+    await new TerminalTimer({ duration, no7Seg: opts.no7Seg }).run();
     process.exit(0);
   } else {
     error('Duration must be a finite integer');
