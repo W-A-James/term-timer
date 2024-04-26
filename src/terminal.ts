@@ -1,13 +1,24 @@
-import { execSync } from 'node:child_process';
+import { stdin, stdout } from 'node:process';
+import { promisify } from 'node:util';
+import { TerminalTimer } from './terminal-timer.js';
 
-export function setupTerminal(): void {
-  execSync('stty raw -echo', {
-    stdio: 'inherit' // this is important!
+export const moveCursor = stdout.moveCursor ? promisify(stdout.moveCursor) : null;
+export const clearScreenDown = stdout.clearScreenDown ? promisify(stdout.clearScreenDown) : null;
+
+export function setupTerminal(timer: TerminalTimer): void {
+  stdin.setRawMode(true);
+  stdin.on('data', async d => {
+    if (d[0] === 3 || d[0] === 4) {
+      if (moveCursor) await moveCursor(0, -3);
+      if (clearScreenDown) await clearScreenDown();
+      timer.kill();
+    }
   });
 }
 
-export function restoreTerminal(): void {
-  execSync('stty -raw echo', {
-    stdio: 'inherit' // this is important!
-  });
+export async function restoreTerminal(): Promise<void> {
+  stdin.setRawMode(false);
+  stdin.removeAllListeners('data');
+  if (clearScreenDown)
+    await clearScreenDown();
 }

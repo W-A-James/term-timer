@@ -1,9 +1,8 @@
 import { setInterval } from 'node:timers/promises';
-import { stdin, stdout } from 'node:process';
 import { EventEmitter } from 'node:events';
 
 import { log } from './utils.js';
-import { setupTerminal, restoreTerminal } from './terminal.js';
+import { setupTerminal, restoreTerminal, moveCursor } from './terminal.js';
 import { repeat, bell } from './sound.js';
 
 
@@ -26,50 +25,43 @@ const to7Seg: Record<string, string> = {
   '9': '\u{1fbf9}',
 };
 
-const to2Dig = (x: number) => {
+const to2Dig = (x: number, no7Seg?: boolean) => {
+  if (no7Seg) {
+    return x < 10 ? `0${x}` : x.toString();
+  }
   const stringified = x < 10 ? `0${x}` : x.toString();
   return stringified.split('').map((x: string) => to7Seg[x]).join('');
 };
 
+export interface TimerOptions {
+  duration: number;
+  captureTTY?: boolean;
+  no7Seg?: boolean;
+}
+
 export class TerminalTimer extends EventEmitter {
   static INSTANCES = new Set();
-  private interruptHandler: (data: string) => void;
   private killed: boolean;
   private seconds: number;
   private abortController: AbortController;
   private captureTTY: boolean;
+  private no7Seg: boolean;
 
-  constructor(durationS: number, captureTTY = true) {
+  constructor(options: TimerOptions) {
     super();
     if (TerminalTimer.INSTANCES.size !== 0) throw new Error('Can only have one instance active at a time');
     TerminalTimer.INSTANCES.add(this);
 
-    this.interruptHandler = data => {
-      if (data == '\x03') { // handle ctrl-c
-        stdout.moveCursor(0, -3, () => {
-          if (stdout.clearScreenDown) {
-            stdout.clearScreenDown(() => {
-              this.kill();
-            });
-          } else {
-            this.kill();
-          }
-        });
-      }
-    };
-    // Set up interrupt handler
-    if (captureTTY)
-      stdin.on('data', this.interruptHandler);
-
+    this.no7Seg = options.no7Seg ?? false;
     this.killed = false;
-    this.seconds = durationS;
+    this.seconds = options.duration;
     this.abortController = new AbortController();
-    this.captureTTY = captureTTY;
+    this.captureTTY = options.captureTTY ?? true;
   }
 
   async run(): Promise<void> {
     if (this.captureTTY)
-      setupTerminal();
+      setupTerminal(this);
     try {
       for await (const _ of setInterval(1000, undefined, { signal: this.abortController.signal })) {
         if (this.killed) return;
@@ -82,14 +74,13 @@ export class TerminalTimer extends EventEmitter {
           const minutes = Math.trunc((this.seconds % 3600) / 60);
           const seconds = (this.seconds) % 60;
           if (this.captureTTY) {
-            log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(minutes), to2Dig(seconds));
-            stdout.moveCursor(0, -3);
+            log(DIGITAL_CLOCK + '\r', to2Dig(hours, this.no7Seg), to2Dig(minutes, this.no7Seg), to2Dig(seconds, this.no7Seg));
+            if (moveCursor) await moveCursor(0, -3);
           }
 
           this.seconds--;
         } catch {
-          this.kill();
-          return;
+          return await this.kill();
         }
       }
     } catch {
@@ -97,22 +88,18 @@ export class TerminalTimer extends EventEmitter {
     }
 
     await repeat(5, 100, bell, { signal: this.abortController.signal });
-    this.kill();
+    return await this.kill();
   }
 
   /**
     * Kill the timer and restore previous terminal settings
     * */
-  kill(): void {
+  async kill(): Promise<void> {
     TerminalTimer.INSTANCES.delete(this);
     this.killed = true;
 
-    if (this.captureTTY) {
-      if (stdout.clearScreenDown)
-        stdout.clearScreenDown();
-      restoreTerminal();
-      stdin.off('data', this.interruptHandler);
-    }
+    if (this.captureTTY)
+      await restoreTerminal();
 
     this.abortController.abort();
     this.emit('expire');
