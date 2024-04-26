@@ -9,7 +9,7 @@
     "build": "npx tsc",
     "fix:eslint": "npx eslint --fix",
     "check:eslint": "npx eslint",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build && chmod +x ./bin/index.js"
   },
   "keywords": [
     "cli"
