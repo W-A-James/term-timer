@@ -75,7 +75,7 @@ export class TerminalTimer extends EventEmitter {
           const seconds = (this.seconds) % 60;
           if (this.captureTTY) {
             log(DIGITAL_CLOCK + '\r', to2Dig(hours, this.no7Seg), to2Dig(minutes, this.no7Seg), to2Dig(seconds, this.no7Seg));
-            await moveCursor(0, -3);
+            if (moveCursor) await moveCursor(0, -3);
           }
 
           this.seconds--;
