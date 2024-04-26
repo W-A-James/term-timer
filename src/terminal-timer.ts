@@ -26,7 +26,10 @@ const to7Seg: Record<string, string> = {
   '9': '\u{1fbf9}',
 };
 
-const to2Dig = (x: number) => {
+const to2Dig = (x: number, no7Seg?: boolean) => {
+  if (no7Seg) {
+    return x < 10 ? `0${x}` : x.toString();
+  }
   const stringified = x < 10 ? `0${x}` : x.toString();
   return stringified.split('').map((x: string) => to7Seg[x]).join('');
 };
@@ -38,11 +41,14 @@ export class TerminalTimer extends EventEmitter {
   private seconds: number;
   private abortController: AbortController;
   private captureTTY: boolean;
+  private no7Seg: boolean;
 
-  constructor(durationS: number, captureTTY = true) {
+  constructor(durationS: number, no7Seg = false, captureTTY = true) {
     super();
     if (TerminalTimer.INSTANCES.size !== 0) throw new Error('Can only have one instance active at a time');
     TerminalTimer.INSTANCES.add(this);
+
+    this.no7Seg = no7Seg;
 
     this.interruptHandler = data => {
       if (data == '\x03') { // handle ctrl-c
@@ -82,7 +88,7 @@ export class TerminalTimer extends EventEmitter {
           const minutes = Math.trunc((this.seconds % 3600) / 60);
           const seconds = (this.seconds) % 60;
           if (this.captureTTY) {
-            log(DIGITAL_CLOCK + '\r', to2Dig(hours), to2Dig(minutes), to2Dig(seconds));
+            log(DIGITAL_CLOCK + '\r', to2Dig(hours, this.no7Seg), to2Dig(minutes, this.no7Seg), to2Dig(seconds, this.no7Seg));
             stdout.moveCursor(0, -3);
           }
 
