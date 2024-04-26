@@ -1,9 +1,10 @@
 import { setInterval } from 'node:timers/promises';
 import { EventEmitter } from 'node:events';
+import { format } from 'node:util';
 
-import { log } from './utils.js';
-import { setupTerminal, restoreTerminal, moveCursor } from './terminal.js';
+import { setupTerminal, restoreTerminal } from './terminal.js';
 import { repeat, bell } from './sound.js';
+import { stdout } from 'node:process';
 
 
 const DIGITAL_CLOCK = [
@@ -74,8 +75,8 @@ export class TerminalTimer extends EventEmitter {
           const minutes = Math.trunc((this.seconds % 3600) / 60);
           const seconds = (this.seconds) % 60;
           if (this.captureTTY) {
-            log(DIGITAL_CLOCK + '\r', to2Dig(hours, this.no7Seg), to2Dig(minutes, this.no7Seg), to2Dig(seconds, this.no7Seg));
-            if (moveCursor) await moveCursor(0, -3);
+            stdout.write(format(`${DIGITAL_CLOCK}\r\n`, to2Dig(hours, this.no7Seg), to2Dig(minutes, this.no7Seg), to2Dig(seconds, this.no7Seg)));
+            stdout.moveCursor(0, -3);
           }
 
           this.seconds--;
