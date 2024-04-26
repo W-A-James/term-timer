@@ -23,6 +23,7 @@
     "type": "git",
     "url": "https://github.com/W-A-James/term-timer"
   },
+  "files": ["bin"],
   "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^9.1.1",
