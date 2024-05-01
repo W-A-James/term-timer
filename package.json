@@ -9,7 +9,8 @@
     "build": "npx tsc",
     "fix:eslint": "npx eslint --fix",
     "check:eslint": "npx eslint",
-    "postinstall": "npm run build && chmod +x ./bin/index.js"
+    "postinstall": "npm run build && chmod +x ./bin/index.js",
+    "prepare": "npm run build && chmod +x ./bin/index.js"
   },
   "keywords": [
     "cli"
@@ -23,6 +24,7 @@
     "type": "git",
     "url": "https://github.com/W-A-James/term-timer"
   },
+  "files": ["bin"],
   "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "^9.1.1",
